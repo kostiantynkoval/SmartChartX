@@ -1,18 +1,16 @@
 import React from 'react';
 import {
-  Image,
   Platform,
-  ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
   processColor
 } from 'react-native';
 import {connect} from 'react-redux'
-import {getSkills, logout} from '../store/actions/index'
+import {getSkills} from '../store/actions/index'
 import jwt_decode from 'jwt-decode'
-import {RadarChart} from 'react-native-charts-wrapper';
+import {RadarChart} from 'react-native-charts-wrapper'
+import {withHeader} from '../hoc/withHeader'
 
 const data = {
   legend: {
@@ -28,10 +26,13 @@ const data = {
     textColor: processColor('red'),
     axisMinimum: 0,
     axisMaximum: 10,
-    labelCount: 6, // 0 5 10 15 20 25 30
+    labelCount: 6,
     labelCountForce: true,
     granularity: 2,
     granularityEnabled: true,
+    style: {
+      color: processColor('red')
+    }
   }
 }
 
@@ -54,7 +55,6 @@ class SkillsScreen extends React.Component {
     this.parsedUser = jwt_decode(this.props.token)
     console.log('parsedUser', this.parsedUser);
     this.props.getSkills(this.parsedUser.id)
-    // this.props.logout()
   }
 
   static getDerivedStateFromProps (props) {
@@ -71,9 +71,7 @@ class SkillsScreen extends React.Component {
           titles.push(item.skill.title.slice(0,10))
         }
       })
-    console.log('marks', marks)
-    console.log('dispositions', dispositions)
-    console.log('titles', titles)
+
     return {
       data: {
         dataSets: [
@@ -169,7 +167,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export default connect(
+export default withHeader(connect(
   store => ({
     skills: store.data.skills,
     token: store.auth.token,
@@ -177,6 +175,5 @@ export default connect(
   }),
   dispatch => ({
     getSkills: id => dispatch(getSkills(id)),
-    logout: () => dispatch(logout())
   })
-)(SkillsScreen)
+  )(SkillsScreen))
